@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
-
+using Newtonsoft.Json;
 using StarterMessagesApp.Models;
 
 using Xamarin.Forms;
@@ -72,26 +73,12 @@ namespace StarterMessagesApp.Services
 
         public async Task InitializeAsync()
         {
-            if (isInitialized)
-                return;
-
-            items = new List<Item>();
-            var _items = new List<Item>
+            using (var client = new HttpClient())
             {
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Buy some cat food", Description="The cats are hungry"},
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Learn F#", Description="Seems like a functional idea"},
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Learn to play guitar", Description="Noted"},
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Buy some new candles", Description="Pine and cranberry for that winter feel"},
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Complete holiday shopping", Description="Keep it a secret!"},
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Finish a todo list", Description="Done"},
-            };
+                string response = await client.GetStringAsync("http://messageswebapi.azurewebsites.net/api/messages");
 
-            foreach (Item item in _items)
-            {
-                items.Add(item);
+                items = JsonConvert.DeserializeObject<List<Item>>(response);
             }
-
-            isInitialized = true;
         }
     }
 }
